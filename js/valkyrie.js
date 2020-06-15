@@ -1,354 +1,200 @@
-'use strict';
+/*!
+ * Valkyrie v2.0.0 (https://codemonkey.com.mx/valkyrie-framework)
+ * Copyright 2020 CodeMonkey Authors
+ * Licensed under MIT (https://github.com/cm-valkyrie/Framework/blob/master/LICENSE)
+ */
 
-/* CLICK
-------------------------------------------------------------------------------*/
-var VK_CLICK = (!document.ontouchstart ? 'click' : 'touchend');
-
-/* Acciones en el DOM
-------------------------------------------------------------------------------*/
-$( document ).ready(function ()
+!function ( $ )
 {
-    var MyDocument = $( this );
+    "use strict"
 
-    // Remueve todos los elementos abiertos como menus, dropdows con la clase "open"
-    MyDocument.on(VK_CLICK, 'html,body', function () { $('*.open').removeClass('open'); });
-    // Elimina la accion del click a elementos sin un link o con el atributo "disabled"
-    MyDocument.on(VK_CLICK, '[href=""],[disabled]', function () { return false; });
+    const Valkyrie = function () {}
 
-    /*
-    * Dropdown Menu
-    */
-    MyDocument.on(VK_CLICK, '.dropmenu > button', function ( event )
+    Valkyrie.prototype.dropdowns = function ()
     {
-        event.stopPropagation();
-        $('.dropmenu > .dropdown.open').removeClass('open');
+        let buttons = document.querySelectorAll(".dropmenu > button")
 
-        var self = $( this );
-        var dropmenu = self.parent();
-        var dropdown = dropmenu.find('> .dropdown');
-
-        dropdown.addClass('open');
-        dropdown.find('a:not([href], [data-button-modal])').on(VK_CLICK, function ( event ) { event.stopPropagation(); });
-    });
-    /** END **/
-
-
-
-    /*
-    * Modal
-    */
-    MyDocument.on(VK_CLICK, '[data-button-modal]', function ()
-    {
-        var self = $( this );
-        var target = self.data('button-modal');
-        var modal = MyDocument.find('[data-modal="'+ target +'"]');
-
-        $('body').addClass('noscroll');
-        modal.addClass('view').animate({ scrollTop: 0 }, 300);
-    });
-
-    $('[data-modal]').each(function ()
-    {
-        var self = $( this );
-        var content = self.find('> div.content');
-        var closeOnOverlay = self.data('close-on-overlay');
-        var buttonClose = self.find('[button-close]');
-
-        content.on(VK_CLICK, function ( event ) { event.stopPropagation(); });
-
-        if ( closeOnOverlay === true )
-            self.on(VK_CLICK, function () { close(); });
-
-        buttonClose.on(VK_CLICK, function () { close(); });
-
-        function close ()
+        for ( const button of buttons )
         {
-            $('body').removeClass('noscroll');
-            self.removeClass('view');
-        }
-    });
-    /** END **/
-
-
-
-    /*
-    * SmoothScroll
-    */
-    MyDocument.on(VK_CLICK, '[smooth-scroll]', function ( event )
-    {
-        if ( location.pathname.replace(/^\//, "") === this.pathname.replace(/^\//, "") && location.hostname === this.hostname )
-        {
-            var element = $(this.hash);
-                element = element.length ? element : $("[name=" + this.hash.slice(1) + "]");
-
-            if ( element.length )
+            button.addEventListener('click', function ( event )
             {
-                $("html,body").animate({scrollTop: element.offset().top}, 1000);
-                return false;
+                event.stopPropagation()
+
+                let dropmenu = $(this).parent()
+
+                $('.dropmenu').not(dropmenu).removeClass("active")
+                dropmenu.toggleClass("active")
+            })
+        }
+    },
+
+    Valkyrie.prototype.modal = function ()
+    {
+        let btns_modals = document.querySelectorAll("[data-button-modal]")
+
+        for ( const btn_modal of btns_modals )
+        {
+            btn_modal.addEventListener('click', function ( event )
+            {
+                let modal = $(this).data('button-modal'),
+                    send_data = $(this).data('send')
+
+                modal = $( document ).find('[data-modal="'+ modal +'"]')
+
+                modal[0].dispatchEvent( new CustomEvent('open', {bubbles: true, detail: {data: send_data}}) )
+
+                modal.vkye_modal().open()
+            })
+        }
+
+        let btns_close = document.querySelectorAll("[data-modal] [button-close]")
+
+        for ( const btn_close of btns_close )
+        {
+            btn_close.addEventListener('click', function ( event )
+            {
+                let modal = $(this).parents('[data-modal]')
+
+                modal.vkye_modal().close()
+
+                modal[0].dispatchEvent( new CustomEvent('close', {bubbles: true}) )
+            })
+        }
+
+        let btns_success = document.querySelectorAll("[data-modal] [button-submit]")
+
+        for ( const btn_success of btns_success )
+        {
+            btn_success.addEventListener('click', function ( event )
+            {
+                let modal = $(this).parents('[data-modal]')
+
+                modal[0].dispatchEvent( new CustomEvent('submit', { bubbles: true }) )
+            })
+        }
+    },
+
+    Valkyrie.prototype.toggles = function ()
+    {
+        $( document.querySelectorAll(".toggles") ).find('.toggle.view > div').show()
+
+        let buttons = document.querySelectorAll(".toggles > .toggle > h3")
+
+        for ( const button of buttons )
+        {
+            button.addEventListener('click', function ( event )
+            {
+                let toggle = $( this ).parents('.toggle')
+                let accordion = ( toggle.parents('.toggles').hasClass( "accordion" ) ) ? true : false
+
+                if ( accordion === true )
+                {
+                    if ( !toggle.hasClass('view') ) { toggle.find('> div').slideDown(300) }
+                    else { toggle.find('> div').slideUp(300) }
+
+                    toggle.toggleClass('view')
+                }
+                else
+                {
+                    toggle.addClass("view").siblings().removeClass("view")
+
+                    toggle.parents('.toggles').find('.toggle > div').slideUp(300)
+                    toggle.find('> div').slideDown(300)
+                }
+            })
+        }
+    },
+
+    Valkyrie.prototype.tabs = function ()
+    {
+        let tabs = document.querySelectorAll(".tabs")
+
+        for ( const tab of tabs )
+        {
+            let buttons = tab.querySelectorAll("ul > [data-tab-target]:not([disabled])")
+
+            $(tab).vkye_multitabs().goto( $(tab).data('tab-active') )
+
+            for ( const button of buttons )
+            {
+                button.addEventListener('click', function ()
+                {
+                    $(tab).vkye_multitabs().goto( $(this).data('tab-target') )
+                })
             }
         }
-    });
-    /** END **/
-});
+    },
 
-/* FUNCIONES
-------------------------------------------------------------------------------*/
-/**
-* @name Modal
-* @description Ventanas modal
-*
-* @return var myModal
-*   @description El propio elemento modal en jQuery
-*
-*   @return object
-*
-* @return function close()
-*   @description accion para cerrar el modal
-*
-*   @return void
-*
-* @return function onCancel()
-*   @description accion para cancelar el modal
-*   @param function callback
-*
-*   @return void
-*
-* @return function onSuccess()
-*   @description accion para cuando existe un exito
-*   @param function callback
-*
-*   @return object
-*/
-$.fn.modal = function ()
-{
-    var self = $( this );
-    var buttonCancel = self.find('[button-cancel]');
-    var buttonSuccess = self.find('[button-success]');
-
-    var modal = {
-        myModal: self,
-        open: function ()
-        {
-            $('body').addClass('noscroll');
-            self.addClass('view').animate({ scrollTop: 0 }, 300);
-        },
-        close: function ()
-        {
-            $('body').removeClass('noscroll');
-            self.removeClass('view');
-        },
-        onCancel: function ( callback )
-        {
-            buttonCancel.on(VK_CLICK, function ()
-            {
-                if ( callback != null )
-                    callback();
-
-                modal.close();
-            });
-        },
-        onSuccess: function ( callback )
-        {
-            buttonSuccess.on(VK_CLICK, function ()
-            {
-                if ( callback != null )
-                    callback( modal );
-            });
-        }
-    };
-
-    return modal;
-};
-/** END **/
-
-
-
-/**
-* @name Parallax
-* @description Efecto parallax para un elemento en el DOM
-* @param int velocidad de movimiento
-* @param string (up|down) direccion de movimiento.
-*
-* @return void
-*/
-$.fn.parallax = function ( speed, direction )
-{
-    var self = $( this );
-    var config = {};
-    var MyDocument = $( document );
-    var touchSupported = ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch );
-
-    config.parallax = self.find('[data-parallax]');
-    config.pixelsTop = self.offset().top;
-    config.startParallax = config.pixelsTop - $( window ).height();
-    config.speed = speed ? speed : 5;
-    config.direction = direction == 'up' ? '-' : '';
-
-    MyDocument
-        .each(function () { scroller(); })
-        .on('scroll', function () { scroller(); });
-
-    if ( touchSupported )
-        MyDocument.on('touchmove', function () { scroller(); });
-
-    function scroller()
+    Valkyrie.prototype.test = function ()
     {
-        if ( MyDocument.scrollTop() >= config.startParallax )
-        {
-            var scroll = ( ( MyDocument.scrollTop() - config.startParallax ) / config.speed );
+    },
 
-            config.parallax.css({
-                '-webkit-transform': 'translate(0px, '+ config.direction + scroll +'px)',
-                'transform': 'translate(0px, '+ config.direction + scroll +'px)'
-            });
-        }
-        else
+    Valkyrie.prototype.init = function ()
+    {
+        window.addEventListener('click', function ()
         {
-            config.parallax.css({
-                '-webkit-transform': 'translate(0px, 0px)',
-                'transform': 'translate(0px, 0px)'
-            });
+            $('.active').removeClass('active')
+        })
+
+        if ( $('.dropmenu').find('a:not([href])')[0] )
+        {
+            $('.dropmenu').find('a:not([href])')[0].addEventListener('click', function ( event )
+            {
+                event.stopPropagation()
+            })
+        }
+
+        this.dropdowns()
+        this.modal()
+        this.toggles()
+        this.tabs()
+    }
+
+    $.Valkyrie = new Valkyrie
+    $.Valkyrie.Constructor = Valkyrie
+}( window.jQuery ),
+
+function ( $ )
+{
+    $.fn.vkye_modal = function ()
+    {
+        let self = $(this)
+
+        return {
+            open: function ()
+            {
+                $('html').addClass('noscroll')
+                self.addClass('view').animate({ scrollTop: 0 }, 300)
+            },
+            close: function ()
+            {
+                $('html').removeClass('noscroll')
+                self.removeClass('view')
+            }
         }
     }
-}
-/** END **/
 
-
-
-/**
-* @name ScrollDown
-* @description Agrega una clase al momento de hacer scrolldown en un elemento establecido, si no se establece usara el documento.
-* @param $class string clase a colocar al momento de cumplir la distancia de scroll
-* @param $distance int distancia que debe cumplir
-* @param $container element|null elemento que tomara de referencia para el scroll, si no se coloca usara el documento
-*
-* @return void;
-*/
-$.fn.scrollDown = function ( $class, $distance, $container )
-{
-    var self = $(this);
-
-    if ( !$container )
-        $container = $( document );
-
-    $container
-        .each(function () { scroller() })
-        .on("scroll", function () { scroller() });
-
-    function scroller ()
+    $.fn.vkye_multitabs = function ()
     {
-        if ( $container.scrollTop() > $distance )
-            self.addClass($class);
-        else
-            self.removeClass($class);
+        let self = $(this)
+
+        return {
+            goto: function ( target = false )
+            {
+                if ( target == false )
+                    return false
+
+                if ( !self.find('[data-target="'+ target +'"]').length )
+                    return false
+
+                self.find('[data-tab-target="'+ target +'"]').addClass("view").siblings().removeClass("view")
+                self.find('[data-target]').slideUp(300)
+                self.find('[data-target="'+ target +'"]').slideDown(300)
+
+                self[0].dispatchEvent( new CustomEvent('change', {bubbles: true, detail: {tab: target}}) )
+            }
+        }
     }
-}
-/** END **/
 
-
-
-/**
-* @name Toggles
-* @description secciones en forma de acordion, para usar en FAQ'S
-*
-* @return void;
-*/
-$.fn.toggles = function ( accordion = false )
-{
-    var container = $(this);
-    container.find('section.toggle.view > div').show();
-
-    this.on(VK_CLICK, 'section.toggle > h3', function ()
-    {
-        var toggle = $( this ).parents('section.toggle');
-
-        if ( accordion == true )
-        {
-            if ( !toggle.hasClass('view') )
-            {
-                toggle.addClass('view');
-                toggle.find('> div').slideDown(300);
-            }
-            else
-            {
-                toggle.removeClass('view');
-                toggle.find('> div').slideUp(300);
-            }
-        }
-        else
-        {
-            if ( !toggle.hasClass('view') )
-            {
-                container.find('section.toggle.view').removeClass('view');
-                toggle.addClass('view');
-
-                container.find('section.toggle > div').slideUp(300);
-                toggle.find('> div').slideDown(300);
-            }
-        }
-    });
-}
-/** END **/
-
-
-
-/**
-* @name Multi-Tabs
-* @description Crea multiples pestañas en un contenedor.
-*
-* @return object;
-*/
-$.fn.multiTabs = function ()
-{
-    var onChange = null;
-    var multitab = {
-        myTab: this,
-        tabActive: null,
-        onInit: function ( callback )
-        {
-            if ( $.isFunction( callback ) )
-                callback();
-        },
-        onChange: function ( callback )
-        {
-            if ( $.isFunction( callback ) )
-                onChange = callback;
-        },
-        goTab: function ( tab = false )
-        {
-            if ( tab == false )
-                return false;
-
-            if ( multitab.tabActive == tab )
-                return false;
-
-            if ( !multitab.myTab.find('[data-target="'+ tab +'"]').length )
-                return false;
-
-            multitab.tabActive = tab;
-
-            if ( $.isFunction( onChange ) )
-                onChange();
-
-            multitab.myTab.find('[data-tab-target]').removeClass('active');
-            multitab.myTab.find('[data-target]').slideUp(300);
-
-            multitab.myTab.find('[data-tab-target="'+ tab +'"]').addClass('active');
-            multitab.myTab.find('[data-target="'+ tab +'"]').slideDown(300);
-        }
-    };
-
-    this.each(function ()
-    {
-        multitab.onInit();
-        multitab.goTab($( this ).data('tab-active'));
-    });
-
-    this.on(VK_CLICK, '[data-tab-target]:not([disabled])', function ()
-    {
-        multitab.goTab($( this ).data('tab-target'));
-    });
-
-    return multitab;
-}
-/** END **/
+    $.Valkyrie.init()
+}( window.jQuery )
