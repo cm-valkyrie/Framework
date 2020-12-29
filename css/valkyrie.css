@@ -50,11 +50,16 @@
     outline: none;
 }
 
+html, body {
+    font-size: 13px;
+}
+
 html {
     width: 100%;
     min-height: 100vh;
     font-family: sans-serif;
     line-height: 1.15;
+    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     -ms-overflow-style: scrollbar;
@@ -74,7 +79,6 @@ article, aside, dialog, figcaption, figure, footer, header, hgroup, main, nav, s
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
     color: var(--dark);
@@ -3323,6 +3327,25 @@ a.btn:not([href]) {
     box-shadow: none;
 }
 
+.btn.btn-link {
+    border-color: transparent !important;
+    color: var(--dark);
+    background-color: transparent !important;
+}
+
+.btn.btn-link.focus,
+.btn.btn-link:focus {
+    text-decoration: underline;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.btn.btn-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    color: var(--blue);
+}
+
 .btn.btn-primary,
 .btn.btn-outline.btn-primary:hover {
     border-color: var(--primary);
@@ -3432,6 +3455,10 @@ a.btn:not([href]) {
     color: var(--dark);
 }
 
+.btn.btn-light.btn-link {
+    color: var(--light);
+}
+
 .btn.btn-light.focus,
 .btn.btn-light:focus {
     box-shadow: 0 0 0 0.2rem rgba(248,249,250,.5);
@@ -3457,25 +3484,6 @@ a.btn:not([href]) {
 .btn.btn-outline.btn-dark {
     color: var(--dark);
     background-color: transparent;
-}
-
-.btn.btn-link {
-    border-color: transparent;
-    color: var(--dark);
-    background-color: transparent;
-}
-
-.btn.btn-link.focus,
-.btn.btn-link:focus {
-    text-decoration: underline;
-    border-color: transparent;
-    box-shadow: none;
-}
-
-.btn.btn-link:hover {
-    opacity: 1;
-    text-decoration: underline;
-    color: var(--blue);
 }
 
 .button-items {
@@ -4258,6 +4266,7 @@ section.modal.size-small > div.content {
 
 section.modal.fullscreen > div.content {
     width: 100%;
+    max-width: inherit;
     height: 100vh;
     margin: 0px;
     align-self: stretch;
@@ -5086,6 +5095,17 @@ section.toggles > section.toggle > div > *:last-child {
     color: var(--secondary);
 }
 
+.figure-cover
+.img-cover,
+.elm-stretched {
+    width: 100%;
+    height: 100%;
+}
+
+.img-cover {
+    object-fit: cover;
+}
+
 .thumb-sm {
     height: 32px;
     width: 32px;
@@ -5388,6 +5408,11 @@ section.toggles > section.toggle > div > *:last-child {
     text-align: justify !important;
 }
 
+.text-justified-center {
+    text-align: justify;
+    text-align-last: center;
+}
+
 .text-nowrap {
     white-space: nowrap !important;
 }
@@ -5586,4 +5611,34 @@ section.toggles > section.toggle > div > *:last-child {
     .table-responsive {
         overflow-x: inherit;
     }
+}
+
+/* Positions
+------------------------------------------------------------------------------*/
+.pos-unset {
+    position: unset;
+}
+
+.pos-relative {
+    position: relative;
+}
+
+.pos-absolute {
+    position: absolute;
+}
+
+.pos-fixed {
+    position: fixed;
+}
+
+.pos-static {
+    position: static;
+}
+
+.pos-sticky {
+    position: sticky;
+}
+
+.pos-inherit {
+    position: inherit;
 }
