@@ -5095,7 +5095,7 @@ section.toggles > section.toggle > div > *:last-child {
     color: var(--secondary);
 }
 
-.figure-cover
+.figure-cover,
 .img-cover,
 .elm-stretched {
     width: 100%;
@@ -5159,6 +5159,22 @@ section.toggles > section.toggle > div > *:last-child {
     padding-left: 15px !important;
 }
 
+.p-l-20 {
+    padding-left: 15px !important;
+}
+
+.p-l-30 {
+    padding-left: 15px !important;
+}
+
+.p-l-40 {
+    padding-left: 15px !important;
+}
+
+.p-l-50 {
+    padding-left: 15px !important;
+}
+
 .p-r-0 {
     padding-right: 0px !important;
 }
@@ -5173,6 +5189,22 @@ section.toggles > section.toggle > div > *:last-child {
 
 .p-r-15 {
     padding-right: 15px !important;
+}
+
+.p-r-20 {
+    padding-left: 15px !important;
+}
+
+.p-r-30 {
+    padding-left: 15px !important;
+}
+
+.p-r-40 {
+    padding-left: 15px !important;
+}
+
+.p-r-50 {
+    padding-left: 15px !important;
 }
 
 .p-t-0 {
